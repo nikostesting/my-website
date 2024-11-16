@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Πέρασα;</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #e0f7fa;
+        }
+        select {
+            padding: 5px;
+            text-align: center;
+            width: 80px;
+        }
+        .pass {
+            color: green;
+        }
+        .fail {
+            color: red;
+        }
+        .button-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        #results {
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Πέρασα;</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Μάθημα</th>
+                <th>Α' Τετράμηνο</th>
+                <th>Β' Τετράμηνο</th>
+                <th>Εξετάσεις</th>
+                <th>Απαιτούμενος Βαθμός στις Εξετάσεις</th>
+            </tr>
+        </thead>
+        <tbody id="subjects-table">
+            <!-- Κατάλογος μαθημάτων -->
+            <tr>
+                <td>Νέα Ελληνικά</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Αρχαία Ελληνικά</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Μαθηματικά</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Φυσική</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Χημεία</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Ιστορία</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <tr>
+                <td>Βιολογία</td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input"></select></td>
+                <td><select class="grade-input" disabled></select></td>
+                <td class="required-grade"></td>
+            </tr>
+            <!-- Προσθέστε περισσότερα μαθήματα όπως απαιτείται -->
+        </tbody>
+    </table>
+
+    <div class="button-container">
+        <button onclick="calculateResults()">Υπολόγισε Αποτελέσματα</button>
+    </div>
+
+    <h2 id="results"></h2>
+
+    <script>
+        // Δημιουργεί επιλογές από το 1 έως το 20 με βήμα 0.5 για τα <select>
+        function populateSelectOptions() {
+            const selectElements = document.querySelectorAll('.grade-input');
+            selectElements.forEach(select => {
+                for (let i = 1; i <= 20; i += 0.5) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function calculateResults() {
+            const rows = document.querySelectorAll('#subjects-table tr');
+            let passedSubjects = 0;
+            let totalSubjects = rows.length;
+
+            rows.forEach(row => {
+                const selects = row.querySelectorAll('.grade-input');
+                let aTetramino = parseFloat(selects[0].value);
+                let bTetramino = parseFloat(selects[1].value);
+                const examsSelect = selects[2];
+                let sum = 0;
+                let validGrades = 0;
+
+                if (!isNaN(aTetramino)) {
+                    sum += aTetramino;
+                    validGrades++;
+                }
+                if (!isNaN(bTetramino)) {
+                    sum += bTetramino;
+                    validGrades++;
+                }
+
+                const requiredCell = row.querySelector('.required-grade');
+                let average = validGrades === 0 ? 0 : sum / validGrades;
+
+                if (validGrades > 0) {
+                    let requiredExamScore = Math.max(0, 30 - sum); // Υποθέτουμε ότι χρειάζεται μέσος όρος >= 10 (σύνολο >= 30)
+                    if (requiredExamScore <= 20) {
+                        requiredCell.textContent = `Χρειάζεται ${requiredExamScore.toFixed(1)}`;
+                        examsSelect.disabled = false;
+                    } else {
+                        requiredCell.textContent = "Αδύνατο να περάσεις";
+                        examsSelect.disabled = true;
+                    }
+                } else {
+                    requiredCell.textContent = "-";
+                    examsSelect.disabled = true;
+                }
+
+                // Ελέγχουμε αν πέρασε το μάθημα με την υπάρχουσα βαθμολογία
+                const examsGrade = parseFloat(examsSelect.value);
+                if (!isNaN(examsGrade)) {
+                    average = (sum + examsGrade) / 3;
+                }
+
+                if (average >= 10) {
+                    passedSubjects++;
+                    row.style.color = 'green';
+                    row.title = "Άραξε! Όλα καλά.";
+                } else {
+                    row.style.color = 'red';
+                    row.title = "Ωχ φίλε, δεν περνάμε. Διάβασε λιγάκι!";
+                }
+            });
+
+            document.getElementById('results').textContent = `Πέρασες σε ${passedSubjects} από ${totalSubjects} μαθήματα.`;
+        }
+
+        // Κλήση της συνάρτησης κατά την εκκίνηση
+        populateSelectOptions();
+    </script>
+</body>
+</html>
